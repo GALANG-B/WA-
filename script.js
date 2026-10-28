@@ -13,7 +13,7 @@ let filterMode = "all";
 let searchQuery = "";
 let isSending = false;
 let onlineUsers = {}; 
-let globalChannel = null; // Menyimpan instance channel agar tidak duplikat
+let globalChannel = null;
 
 // Elemen DOM
 const authModal = document.getElementById("auth-modal");
@@ -69,7 +69,7 @@ function createStatusEl() {
   return null;
 }
 
-// Inisialisasi Aplikasi (Hanya panggil 1 kali inisialisasi presence di sini)
+// Inisialisasi Aplikasi
 async function initApp() {
   const savedTheme = localStorage.getItem("wa_theme");
   if (savedTheme === "dark") {
@@ -84,7 +84,7 @@ async function initApp() {
   } else {
     await loadMessagesFromSupabase();
     startSession();
-    initPresenceChannel(); // Hanya dipanggil di sini
+    initPresenceChannel();
   }
 
   // Realtime subscription pesan
@@ -125,11 +125,9 @@ async function initApp() {
   btnBack.onclick = () => sidebar.classList.remove("-translate-x-full");
 }
 
-// Sistem Presence yang aman dari duplikasi
 function initPresenceChannel() {
   if (!currentEmail) return;
 
-  // Jika channel sudah ada, hapus dulu agar tidak double
   if (globalChannel) {
     supabaseClient.removeChannel(globalChannel);
   }
@@ -138,7 +136,6 @@ function initPresenceChannel() {
     config: { presence: { key: currentEmail } }
   });
 
-  // Daftarkan event .on() sebelum .subscribe()
   globalChannel
     .on('presence', { event: 'sync' }, () => {
       const state = globalChannel.presenceState();
@@ -479,6 +476,5 @@ function escapeHTML(str) {
   );
 }
 
-document.addEventListenefunction () {
-    
-}r("DOMContentLoaded", initApp);
+// Perbaikan event listener agar berjalan normal kembali
+document.addEventListener("DOMContentLoaded", initApp);
