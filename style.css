@@ -36,3 +36,29 @@
 .dark .app-empty-icon { background-color: #042f2e !important; color: #5eead4 !important; }
 .dark .filter-btn { background-color: #1e293b !important; color: #94a3b8 !important; }
 .dark .filter-btn.active { background-color: #042f2e !important; color: #5eead4 !important; }
+/* Pastikan kontainer utama menyesuaikan tinggi layar perangkat seluler dengan sempurna */
+html, body {
+  height: 100%;
+  height: 100dvh;
+  margin: 0;
+  overflow: hidden;
+}
+
+/* Memastikan area chat fleksibel dan form input selalu terlihat di bawah */
+#chat-area {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+#messages-container {
+  flex: 1;
+  overflow-y: auto;
+}
+
+#chat-form {
+  flex-shrink: 0;
+  position: relative;
+  z-index: 10;
+}
