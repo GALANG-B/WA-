@@ -1,0 +1,38 @@
+.custom-scrollbar::-webkit-scrollbar { width: 4px; }
+.custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+.custom-scrollbar::-webkit-scrollbar-thumb { background-color: rgba(203, 213, 225, 0.5); border-radius: 9999px; }
+
+.chat-workspace {
+  background-color: #f8fafc;
+  background-image: radial-gradient(rgba(13, 148, 136, 0.04) 1px, transparent 0);
+  background-size: 20px 20px;
+}
+
+@keyframes fadeInSlide {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.message-bubble {
+  animation: fadeInSlide 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.filter-btn.active {
+  background-color: #ccfbf1 !important;
+  color: #0f766e !important;
+  font-weight: 700;
+}
+
+/* Dark Mode Overrides */
+.dark body { background-color: #020617 !important; color: #f8fafc !important; }
+.dark .app-container { background-color: #0f172a !important; border-color: #1e293b !important; box-shadow: none !important; }
+.dark .app-header, .dark .app-sidebar, .dark .app-chat-header, .dark .app-chat-footer { background-color: #0f172a !important; border-color: #1e293b !important; }
+.dark .app-title { color: #f8fafc !important; }
+.dark .app-profile-card { background-color: #1e293b !important; border-color: #334155 !important; }
+.dark .app-search, .dark .app-input, .dark .app-switcher { background-color: #1e293b !important; color: #f8fafc !important; border-color: #334155 !important; }
+.dark .app-switcher select { color: #f8fafc !important; }
+.dark .app-text-main { color: #f8fafc !important; }
+.dark .chat-workspace { background-color: #020617 !important; background-image: radial-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 0); }
+.dark .app-empty { background-color: #020617 !important; }
+.dark .app-empty-icon { background-color: #042f2e !important; color: #5eead4 !important; }
+.dark .filter-btn { background-color: #1e293b !important; color: #94a3b8 !important; }
+.dark .filter-btn.active { background-color: #042f2e !important; color: #5eead4 !important; }
