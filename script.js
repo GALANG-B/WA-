@@ -359,6 +359,7 @@ function renderChatArea() {
   if (!activeContactEmail) {
     chatHeader.classList.add("hidden");
     messagesContainer.classList.add("hidden");
+    chatForm.classList.remove("flex");
     chatForm.classList.add("hidden");
     emptyState.classList.remove("hidden");
     return;
@@ -369,7 +370,8 @@ function renderChatArea() {
 
   chatHeader.classList.remove("hidden");
   messagesContainer.classList.remove("hidden");
-  chatForm.classList.remove("hidden"); // Kolom input pesan dipastikan muncul kembali di sini
+  chatForm.classList.remove("hidden");
+  chatForm.classList.add("flex"); // Pastikan form chat muncul dengan fleksibel
   emptyState.classList.add("hidden");
 
   activeContactAvatarHeader.src = friendObj.avatar;
