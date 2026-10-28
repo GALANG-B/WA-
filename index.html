@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Whisper Chat - Gmail Auth</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { darkMode: 'class' }
+  </script>
+  <!-- Supabase JS Client CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-slate-100 text-slate-800 flex justify-center items-center h-screen overflow-hidden font-['Plus_Jakarta_Sans',sans-serif]">
+
+  <div class="w-full h-full lg:max-w-[1450px] lg:max-h-[90vh] flex flex-col bg-white lg:rounded-2xl shadow-xl shadow-slate-200/50 overflow-hidden border border-slate-200/80 app-container relative">
+    
+    <!-- Top Bar Fleksibel & Rapi -->
+    <header class="bg-white dark:bg-slate-900 px-3 py-2.5 flex justify-between items-center border-b border-slate-100 dark:border-slate-800 z-20 app-header">
+      
+      <!-- Bagian Kiri: Logo & Nama App -->
+      <div class="flex items-center space-x-2 shrink-0">
+        <div class="w-8 h-8 rounded-xl bg-teal-600 text-white flex items-center justify-center font-bold shadow-sm shadow-teal-500/30">
+          <i class="fa-solid fa-feather text-xs"></i>
+        </div>
+        <span class="font-bold text-sm sm:text-base tracking-tight text-slate-900 dark:text-white app-title">Whisper</span>
+      </div>
+
+      <!-- Bagian Kanan: Info Akun & Tombol Aksi (Fleksibel & Aman dari Gonjang-Ganjing) -->
+      <div class="flex items-center space-x-1 sm:space-x-2 min-w-0">
+        
+        <!-- Kotak Akun Gmail -->
+        <div class="flex items-center bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-xl border border-slate-200/60 dark:border-slate-700 space-x-1 app-switcher max-w-[130px] sm:max-w-[200px] min-w-0">
+          <i class="fa-solid fa-envelope text-teal-600 text-xs shrink-0"></i>
+          <span id="logged-email" class="text-[10px] sm:text-xs font-bold text-slate-700 dark:text-slate-200 truncate">Guest</span>
+          <button id="btn-logout" class="text-[9px] sm:text-[10px] bg-rose-500 text-white px-1.5 py-0.5 rounded-lg hover:bg-rose-600 transition shrink-0">Akun</button>
+        </div>
+
+        <!-- Tombol Tema -->
+        <button id="btn-theme" class="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 flex items-center justify-center transition text-slate-600 dark:text-slate-300 app-btn shrink-0" title="Ganti Tema">
+          <i id="theme-icon" class="fa-solid fa-moon text-xs sm:text-sm"></i>
+        </button>
+
+        <!-- Tombol Reset -->
+        <button id="btn-reset" class="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 text-rose-600 flex items-center justify-center transition shrink-0" title="Reset Sesi">
+          <i class="fa-solid fa-rotate-left text-[10px] sm:text-xs"></i>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Workspace -->
+    <div class="flex-1 flex overflow-hidden relative">
+      
+      <!-- SIDEBAR -->
+      <aside id="sidebar" class="w-full md:w-[360px] lg:w-[400px] bg-white border-r border-slate-100 flex flex-col h-full absolute md:relative z-20 transition-transform duration-300 transform md:translate-x-0 app-sidebar">
+        
+        <!-- Current User Profile Card -->
+        <div class="p-3.5 flex justify-between items-center bg-slate-50/70 mx-3 my-3 rounded-2xl border border-slate-100 app-profile-card">
+          <div class="flex items-center space-x-3 min-w-0">
+            <div class="relative shrink-0">
+              <img id="current-user-avatar" src="" alt="Avatar" class="w-10 h-10 rounded-xl object-cover shadow-sm">
+              <span class="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-500 rounded-full border-2 border-white"></span>
+            </div>
+            <div class="min-w-0">
+              <h2 id="current-user-name" class="font-bold text-xs sm:text-sm text-slate-900 app-text-main truncate"></h2>
+              <p id="current-user-email-display" class="text-[10px] text-slate-400 truncate"></p>
+            </div>
+          </div>
+          <button id="btn-open-add-friend" class="bg-teal-600 hover:bg-teal-700 text-white text-xs font-semibold px-3 py-2 rounded-xl transition shadow-sm flex items-center space-x-1 shrink-0">
+            <i class="fa-solid fa-user-plus text-xs"></i>
+            <span class="hidden sm:inline">Add Friend</span>
+          </button>
+        </div>
+
+        <!-- Search Bar -->
+        <div class="px-3 pb-2">
+          <div class="relative">
+            <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-slate-400 text-xs"></i>
+            <input type="text" id="search-input" placeholder="Cari teman..." class="w-full pl-9 pr-4 py-2.5 bg-slate-100 rounded-xl text-xs font-medium focus:outline-none focus:ring-2 focus:ring-teal-500/20 text-slate-800 transition border border-transparent app-search">
+          </div>
+        </div>
+
+        <!-- Filter Pills -->
+        <div class="flex px-3 py-2 space-x-2 text-xs font-semibold">
+          <button id="filter-all" class="px-3.5 py-1.5 rounded-xl bg-teal-50 text-teal-700 filter-btn transition">Semua Teman</button>
+          <button id="filter-unread" class="px-3.5 py-1.5 rounded-xl bg-slate-100 text-slate-600 hover:bg-slate-200 filter-btn transition">Belum Dibaca</button>
+        </div>
+
+        <!-- Contact List -->
+        <div id="contact-list" class="flex-1 overflow-y-auto px-2 py-1 space-y-1 custom-scrollbar"></div>
+      </aside>
+
+      <!-- CHAT AREA -->
+      <main id="chat-area" class="flex-1 flex flex-col h-full relative chat-workspace">
+        
+        <!-- Chat Header -->
+        <div id="chat-header" class="px-4 py-3 bg-white/80 backdrop-blur-md border-b border-slate-100 flex justify-between items-center z-10 hidden shadow-sm app-chat-header">
+          <div class="flex items-center space-x-3">
+            <button id="btn-back" class="md:hidden p-2 text-slate-600 hover:bg-slate-100 rounded-xl transition">
+              <i class="fa-solid fa-arrow-left text-sm"></i>
+            </button>
+            <div class="relative">
+              <img id="active-contact-avatar-header" src="" alt="Kontak" class="w-10 h-10 rounded-xl object-cover shadow-sm">
+              <span class="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-500 rounded-full border-2 border-white"></span>
+            </div>
+            <div>
+              <h3 id="active-contact-name-header" class="font-bold text-xs sm:text-sm text-slate-900 app-text-main"></h3>
+              <p id="active-contact-email-header" class="text-[10px] text-slate-400"></p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Messages Container -->
+        <div id="messages-container" class="flex-1 overflow-y-auto p-4 sm:p-6 space-y-3 custom-scrollbar hidden"></div>
+
+        <!-- Chat Input Bar -->
+        <form id="chat-form" class="p-3 bg-white border-t border-slate-100 flex items-center space-x-2 z-10 hidden shadow-lg shadow-slate-200/20 app-chat-footer">
+          <input type="text" id="message-input" placeholder="Tulis pesan..." autocomplete="off" class="flex-1 py-2.5 px-4 bg-slate-100 rounded-xl text-xs sm:text-sm font-medium focus:outline-none focus:ring-2 focus:ring-teal-500/20 text-slate-800 transition border border-transparent app-input">
+          <button type="submit" id="btn-send" class="w-10 h-10 bg-teal-600 hover:bg-teal-700 text-white rounded-xl transition shadow-sm shadow-teal-500/30 flex items-center justify-center shrink-0">
+            <i class="fa-solid fa-paper-plane text-xs"></i>
+          </button>
+        </form>
+
+        <!-- Empty State -->
+        <div id="empty-state" class="flex-1 flex flex-col items-center justify-center p-8 text-center bg-slate-50/50 app-empty">
+          <div class="w-16 h-16 bg-teal-50 text-teal-600 rounded-2xl flex items-center justify-center mb-4 text-2xl shadow-sm app-empty-icon">
+            <i class="fa-solid fa-envelope-open-text"></i>
+          </div>
+          <h3 class="font-bold text-base mb-1 text-slate-800 app-text-main">Mulai Chat dengan Gmail</h3>
+          <p class="text-slate-400 text-xs sm:text-sm max-w-xs mb-4">
+            Tambahkan teman menggunakan alamat Gmail mereka lewat tombol <span class="text-teal-600 font-semibold">Add Friend</span>.
+          </p>
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+  <!-- MODAL AUTH (GMAIL) -->
+  <div id="auth-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white dark:bg-slate-900 w-full max-w-md rounded-3xl p-6 shadow-2xl border border-slate-100 dark:border-slate-800">
+      <div class="text-center mb-5">
+        <div class="w-12 h-12 bg-teal-100 text-teal-600 rounded-2xl flex items-center justify-center mx-auto mb-3 text-xl font-bold">
+          <i class="fa-solid fa-envelope"></i>
+        </div>
+        <h3 class="text-lg font-bold text-slate-900 dark:text-white">Login / Daftar Akun Gmail</h3>
+        <p class="text-xs text-slate-400 mt-1">Gunakan alamat Gmail Anda sebagai identitas unik.</p>
+      </div>
+
+      <div class="mb-4">
+        <label class="block text-xs font-bold text-slate-600 dark:text-slate-300 mb-2">Akun Tersedia di Perangkat:</label>
+        <div id="existing-accounts-list" class="space-y-2 max-h-32 overflow-y-auto pr-1"></div>
+      </div>
+
+      <hr class="border-slate-100 dark:border-slate-800 my-4">
+
+      <form id="create-account-form" class="space-y-3">
+        <h4 class="text-xs font-bold text-teal-600 uppercase tracking-wider">Daftar Akun Baru</h4>
+        <div>
+          <input type="email" id="new-email" placeholder="Alamat Gmail (contoh: budi@gmail.com)" required class="w-full px-4 py-2.5 bg-slate-100 dark:bg-slate-800 rounded-xl text-xs font-medium focus:outline-none dark:text-white">
+        </div>
+        <div>
+          <input type="text" id="new-name" placeholder="Nama Lengkap / Panggilan (contoh: Budi Santoso)" required class="w-full px-4 py-2.5 bg-slate-100 dark:bg-slate-800 rounded-xl text-xs font-medium focus:outline-none dark:text-white">
+        </div>
+        <div>
+          <input type="text" id="new-avatar-url" placeholder="URL Foto Profil (Opsional)" class="w-full px-4 py-2.5 bg-slate-100 dark:bg-slate-800 rounded-xl text-xs font-medium focus:outline-none dark:text-white">
+        </div>
+        <button type="submit" class="w-full py-3 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-bold transition shadow-md">
+          Daftar & Masuk
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL ADD FRIEND (BERDASARKAN GMAIL) -->
+  <div id="add-friend-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white dark:bg-slate-900 w-full max-w-sm rounded-3xl p-6 shadow-2xl border border-slate-100 dark:border-slate-800 text-center">
+      <div class="w-12 h-12 bg-teal-100 text-teal-600 rounded-2xl flex items-center justify-center mx-auto mb-3 text-xl">
+        <i class="fa-solid fa-user-plus"></i>
+      </div>
+      <h3 class="text-base font-bold text-slate-900 dark:text-white mb-1">Tambah Teman via Gmail</h3>
+      <p class="text-xs text-slate-400 mb-4">Masukkan alamat Gmail teman yang terdaftar.</p>
+      
+      <input type="email" id="friend-target-input" placeholder="email_teman@gmail.com" class="w-full px-4 py-2.5 bg-slate-100 dark:bg-slate-800 rounded-xl text-xs font-medium focus:outline-none dark:text-white mb-3">
+      
+      <div id="add-friend-error" class="text-rose-500 text-xs mb-3 hidden">Error</div>
+
+      <div class="flex space-x-2">
+        <button id="btn-close-add-friend" type="button" class="flex-1 py-2.5 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 rounded-xl text-xs font-bold transition">Batal</button>
+        <button id="btn-submit-add-friend" type="button" class="flex-1 py-2.5 bg-teal-600 hover:bg-teal-700 text-white rounded-xl text-xs font-bold transition shadow-md">Add Friend</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
