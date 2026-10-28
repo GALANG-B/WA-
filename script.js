@@ -369,7 +369,7 @@ function renderChatArea() {
 
   chatHeader.classList.remove("hidden");
   messagesContainer.classList.remove("hidden");
-  chatForm.classList.remove("hidden");
+  chatForm.classList.remove("hidden"); // Kolom input pesan dipastikan muncul kembali di sini
   emptyState.classList.add("hidden");
 
   activeContactAvatarHeader.src = friendObj.avatar;
@@ -476,5 +476,4 @@ function escapeHTML(str) {
   );
 }
 
-// Perbaikan event listener agar berjalan normal kembali
 document.addEventListener("DOMContentLoaded", initApp);
