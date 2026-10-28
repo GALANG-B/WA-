@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0f766e">
+  <title>Whisper Chat</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>tailwind.config = { darkMode: "class" };</script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-slate-100 text-slate-800">
+  <div class="app-container">
+    <header class="app-header">
+      <div class="brand">
+        <div class="brand-icon"><i class="fa-solid fa-feather"></i></div>
+        <span class="app-title">Whisper</span>
+      </div>
+      <div class="header-actions">
+        <div class="account-pill">
+          <i class="fa-solid fa-envelope"></i>
+          <span id="logged-email">Guest</span>
+          <button id="btn-logout" type="button">Akun</button>
+        </div>
+        <button id="btn-theme" class="icon-button" type="button" title="Ganti tema" aria-label="Ganti tema">
+          <i id="theme-icon" class="fa-solid fa-moon"></i>
+        </button>
+        <button id="btn-reset" class="icon-button reset-button" type="button" title="Reset sesi" aria-label="Reset sesi">
+          <i class="fa-solid fa-rotate-left"></i>
+        </button>
+      </div>
+    </header>
+
+    <div class="workspace">
+      <aside id="sidebar" class="sidebar">
+        <div class="profile-card">
+          <div class="profile-info">
+            <img id="current-user-avatar" src="" alt="Foto profil" class="avatar">
+            <div class="profile-copy">
+              <h2 id="current-user-name"></h2>
+              <p id="current-user-email-display"></p>
+            </div>
+          </div>
+          <button id="btn-open-add-friend" class="primary-button add-friend-button" type="button">
+            <i class="fa-solid fa-user-plus"></i><span>Add Friend</span>
+          </button>
+        </div>
+
+        <div class="search-wrap">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input id="search-input" type="search" placeholder="Cari teman..." autocomplete="off" aria-label="Cari teman">
+        </div>
+
+        <div class="filter-row">
+          <button id="filter-all" class="filter-btn active" type="button">Semua Teman</button>
+          <button id="filter-unread" class="filter-btn" type="button">Belum Dibaca</button>
+        </div>
+        <div id="contact-list" class="contact-list"></div>
+      </aside>
+
+      <main id="chat-area" class="chat-area">
+        <div id="chat-header" class="chat-header hidden">
+          <button id="btn-back" class="back-button" type="button" aria-label="Kembali ke daftar teman">
+            <i class="fa-solid fa-arrow-left"></i>
+          </button>
+          <img id="active-contact-avatar-header" src="" alt="Foto kontak" class="avatar">
+          <div class="chat-contact-copy">
+            <h3 id="active-contact-name-header"></h3>
+            <p id="active-contact-email-header"></p>
+            <p id="active-contact-status-header" class="status-text">Offline</p>
+          </div>
+        </div>
+
+        <div id="messages-container" class="messages-container hidden" aria-live="polite"></div>
+
+        <form id="chat-form" class="chat-form hidden">
+          <input id="message-input" type="text" placeholder="Tulis pesan..." autocomplete="off"
+                 enterkeyhint="send" aria-label="Tulis pesan" maxlength="4000">
+          <button id="btn-send" class="send-button" type="submit" aria-label="Kirim pesan">
+            <i class="fa-solid fa-paper-plane"></i>
+          </button>
+        </form>
+
+        <div id="empty-state" class="empty-state">
+          <div class="empty-icon"><i class="fa-solid fa-envelope-open-text"></i></div>
+          <h3>Mulai Chat dengan Gmail</h3>
+          <p>Tambahkan teman menggunakan alamat email mereka lewat tombol <strong>Add Friend</strong>.</p>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- Modal akun: ini adalah pemilih profil lokal aplikasi, bukan autentikasi Google -->
+  <div id="auth-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="auth-title">
+    <div class="modal-card">
+      <div class="modal-heading">
+        <div class="modal-icon"><i class="fa-solid fa-envelope"></i></div>
+        <h3 id="auth-title">Pilih / Daftar Profil</h3>
+        <p>Masukkan email dan nama untuk membuat profil Whisper.</p>
+      </div>
+      <div class="field-group">
+        <label for="existing-accounts-list">Profil yang tersedia</label>
+        <div id="existing-accounts-list" class="existing-accounts-list"></div>
+      </div>
+      <hr class="modal-divider">
+      <form id="create-account-form" class="form-stack">
+        <h4>Daftar profil baru</h4>
+        <input type="email" id="new-email" placeholder="Alamat email (contoh: budi@gmail.com)" autocomplete="email" required>
+        <input type="text" id="new-name" placeholder="Nama lengkap / panggilan" autocomplete="name" maxlength="80" required>
+        <input type="url" id="new-avatar-url" placeholder="URL foto profil (opsional)" autocomplete="url">
+        <button class="primary-button full-width" type="submit">Daftar & Masuk</button>
+        <p class="small-note">Catatan: memasukkan email di sini tidak membuktikan kepemilikan akun email tersebut.</p>
+      </form>
+    </div>
+  </div>
+
+  <div id="add-friend-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="add-friend-title">
+    <div class="modal-card compact-modal">
+      <div class="modal-heading">
+        <div class="modal-icon"><i class="fa-solid fa-user-plus"></i></div>
+        <h3 id="add-friend-title">Tambah Teman</h3>
+        <p>Masukkan email profil teman yang sudah terdaftar.</p>
+      </div>
+      <form id="add-friend-form" class="form-stack">
+        <input type="email" id="friend-target-input" placeholder="email_teman@gmail.com" autocomplete="email" required>
+        <div id="add-friend-error" class="error-message hidden" role="alert"></div>
+        <div class="modal-actions">
+          <button id="btn-close-add-friend" class="secondary-button" type="button">Batal</button>
+          <button id="btn-submit-add-friend" class="primary-button" type="submit">Add Friend</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
+  <script src="script.js"></script>
+</body>
+</html>
